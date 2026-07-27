@@ -11,7 +11,6 @@ luis.lastFocusedWidget = {} -- Table to store the last focused widget for each l
 
 -- Scaling
 luis.baseWidth, luis.baseHeight = 1920, 1080
-luis.scale = 1
 
 -- Grid settings
 luis.gridSize = 20
@@ -502,18 +501,14 @@ function luis.getGridSize()
 	return luis.gridSize
 end
 
-function luis.updateScale()
-    local w, h = love.graphics.getDimensions()
-    luis.scale = math.min(w / luis.baseWidth, h / luis.baseHeight)
-end
-
-function luis.update(dt)
+function luis.update(dt, mx, my)
     if luis.clickCooldown > 0 then
         luis.clickCooldown = math.max(0, luis.clickCooldown - dt)
     end
 
-    local mx, my = love.mouse.getPosition()
-    mx, my = mx / luis.scale, my / luis.scale
+    if mx == nil or my == nil then
+        mx, my = love.mouse.getPosition()
+    end
 
     -- Joystick navigation
     local jx, jy = luis.getJoystickAxis(1, 'leftx'), luis.getJoystickAxis(1, 'lefty')
@@ -601,7 +596,6 @@ end
 -- draw, z-ordering, debug-view
 function luis.draw()
     love.graphics.push()
-    love.graphics.scale(luis.scale, luis.scale)
     love.graphics.setBackgroundColor(luis.theme.background.color)
 
     -- Create a flat list of all elements from enabled layers
@@ -834,7 +828,6 @@ end
 ------------------------------------------------
 --[[
 function luis.mousepressed(x, y, button, istouch, presses)
-    x, y = x / luis.scale, y / luis.scale
     for layerName, _ in pairs(luis.enabledLayers) do
         if handleLayerInput(layerName, x, y, "click", button, istouch, presses) then
             return true
@@ -845,7 +838,6 @@ end
 ]]--
 --[[
 function luis.mousepressed(x, y, button, istouch, presses)
-    x, y = x / luis.scale, y / luis.scale
     if luis.clickCooldown > 0 then return false end
     
     for layerName, _ in pairs(luis.enabledLayers) do
@@ -874,7 +866,6 @@ function luis.handleGlobalClick(x, y, button, istouch, presses)
 end
 
 function luis.mousepressed(x, y, button, istouch, presses)
-    x, y = x / luis.scale, y / luis.scale
     if luis.clickCooldown > 0 then return false end
     
     -- First, allow all elements to respond to the global click event
@@ -891,7 +882,6 @@ function luis.mousepressed(x, y, button, istouch, presses)
 end
 
 function luis.mousereleased(x, y, button, istouch, presses)
-    x, y = x / luis.scale, y / luis.scale
     for layerName, _ in pairs(luis.enabledLayers) do
         if handleLayerInput(layerName, x, y, "release", button, istouch, presses) then
             return true
@@ -901,7 +891,6 @@ function luis.mousereleased(x, y, button, istouch, presses)
 end
 
 function luis.touchpressed(id, x, y, dx, dy, pressure)
-    x, y = x / luis.scale, y / luis.scale
     -- Then process regular click handling with z-index priority preserved
     for layerName, _ in pairs(luis.enabledLayers) do
         if handleLayerInput(layerName, nil, nil, "touchpressed", id, x, y, dx, dy, pressure) then
@@ -912,7 +901,6 @@ function luis.touchpressed(id, x, y, dx, dy, pressure)
 end
 
 function luis.touchreleased(id, x, y, dx, dy, pressure)
-    x, y = x / luis.scale, y / luis.scale
     -- Then process regular click handling with z-index priority preserved
     for layerName, _ in pairs(luis.enabledLayers) do
         if handleLayerInput(layerName, nil, nil, "touchreleased", id, x, y, dx, dy, pressure) then
