@@ -52,6 +52,10 @@ function textInput.new(width, height, placeholder, onChange, row, col, customThe
             love.graphics.setColor(textInputTheme.borderColor)
             love.graphics.rectangle("line", self.position.x, self.position.y, self.width, self.height)
 
+            -- 明确设置字体: 避免受上一个元素的 love 字体状态影响 (文本大小不稳定)
+            local font = self.theme.font or luis.theme.text.font
+            love.graphics.setFont(font)
+
             love.graphics.setColor(textInputTheme.textColor)
             local displayText = self.value
             if #displayText == 0 and not self.active then
@@ -59,10 +63,10 @@ function textInput.new(width, height, placeholder, onChange, row, col, customThe
                 displayText = self.placeholder
             end
 			love.graphics.setColor(textInputTheme.textColor)
-            love.graphics.printf(displayText, self.position.x + textInputTheme.padding, self.position.y + (self.height - luis.theme.text.font:getHeight()) / 2, self.width - textInputTheme.padding * 2, "left")
+            love.graphics.printf(displayText, self.position.x + textInputTheme.padding, self.position.y + (self.height - font:getHeight()) / 2, self.width - textInputTheme.padding * 2, "left")
 
             if self.active and self.showCursor then
-                local cursorX = self.position.x + textInputTheme.padding + luis.theme.text.font:getWidth(utf8_sub(self.value, 1, self.cursorPos))
+                local cursorX = self.position.x + textInputTheme.padding + font:getWidth(utf8_sub(self.value, 1, self.cursorPos))
                 love.graphics.setColor(textInputTheme.cursorColor)
                 love.graphics.line(cursorX, self.position.y + textInputTheme.padding, cursorX, self.position.y + self.height - textInputTheme.padding)
             end
